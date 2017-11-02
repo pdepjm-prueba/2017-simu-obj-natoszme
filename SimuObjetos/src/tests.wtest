@@ -1,7 +1,29 @@
-// Acá los tests
+import codigo.*
 
-test "testX" {
-
-	assert.that(true)
-
+describe "Tests pedidos"
+{
+	var biclopeDePrueba  = new Biclope()
+	
+	fixture
+	{
+		biclopeDePrueba.rol(new Soldado())
+	}
+	
+	test "Si un empleado come una fruta que otorga 1 punto, tiene 1 de estamina"
+	{
+		biclopeDePrueba.comerFruta(1)
+		assert.equals(1, biclopeDePrueba.estamina())
+	}
+	
+	test "Un minion arregla una maquina y su experincia total es 4"
+	{
+		biclopeDePrueba.comerFruta(4)
+		biclopeDePrueba.intentarRealizar(new ArreglarMaquina(2, #{}))
+		assert.equals(2 * 2, biclopeDePrueba.experiencia())
+	}
+	
+	test "Un minion soldado intenta limpiar un sectorgrande y no puede"
+	{
+		assert.throwsExceptionLike(new ExcepcionImposibleRealizarTarea(), {biclopeDePrueba.intentarRealizar(new LimpiarSector(true))})
+	}
 }

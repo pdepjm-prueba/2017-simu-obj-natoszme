@@ -4,10 +4,15 @@ class ExcepcionImposibleRealizarTarea inherits Exception{}
 class Minion
 {
 	var rol
-	var estamina
+	var estamina = 0
 	var tareasRealizadas = []
 	
 	method estamina() = estamina
+	
+	method rol(nuevoRol)
+	{
+		rol = nuevoRol
+	}
 	
 	/*method intentarRealizar(tarea)
 	{
@@ -21,12 +26,22 @@ class Minion
 	
 	method intentarRealizar(tarea)
 	{
-		if (!tarea.puedeSerRealizadaPor(self))
+		if (!self.puedeRealizarTarea(self, tarea))
 		{
 			throw new ExcepcionImposibleRealizarTarea()
 		}
-		rol.realizaTarea(self, tarea)
+		rol.realizarTarea(self, tarea)
 		tareasRealizadas.add(tarea)
+	}
+	
+	method puedeRealizarTarea(minion, tarea)
+	{
+		rol.puedeRealizar(self, tarea)
+	}
+	
+	method puedeRealizar(tarea)
+	{
+		tarea.puedeSerRealizadaPor()
 	}
 	
 	method experiencia()
@@ -82,6 +97,11 @@ class Minion
 	method delegar(tarea)
 	{
 		rol.delegarTarea(tarea)
+	}
+	
+	method comerFruta(cantidad)
+	{
+		estamina += cantidad
 	}
 }
 
@@ -142,7 +162,7 @@ class Rol
 	{
 		return minion.estamina() / 2
 	}
-	
+	 method devolverEmpleado(empleado,tarea ) =empleado
 	//cambio de enfoque
 	/*method puedeRealizar(minion, tarea)
 	{
@@ -152,6 +172,11 @@ class Rol
 	method realizarTarea(minion, tarea)
 	{
 		tarea.esRealizadaPor(minion)	
+	}
+	
+	method puedeRealizar(minion, tarea)
+	{
+		minion.puedeRealizar(tarea)
 	}
 	
 }
@@ -221,6 +246,37 @@ class Capataz inherits Rol
 		}
 	}*/
 	
+	override method puedeRealizar(minion, tarea)
+	{
+		return self.subordinadoMasCapaz(tarea)
+	}
+	
+	override method puedeRealizar(minion, tarea)
+	{
+		if (self.subordinadoMasCapaz(tarea))
+		{
+			 return true
+		}
+		else
+		{
+			return minion.puedeRealizar(tarea)
+		}
+	}
+	
+	var quienPudoHacerla
+	
+	override method devolverEmpleado(minion,tarea)
+	{
+		if (self.subordinadoMasCapaz(tarea))
+		{
+			 return self.subordinadoMasCapaz(tarea)
+		}
+		else
+		{
+			return self
+		}
+	}
+	
 	override method realizarTarea(minion, tarea)
 	{
 		if (self.subordinadoMasCapaz(tarea))
@@ -285,6 +341,12 @@ class ArreglarMaquina inherits Tarea
 	var complejidad
 	var herramientasNecesarias = #{}
 	
+	constructor(_complejidad, _herramientasNecesarias)
+	{
+		complejidad = _complejidad
+		herramientasNecesarias = _herramientasNecesarias
+	}
+	
 	
 	method dificultad(minion)
 	{
@@ -293,7 +355,7 @@ class ArreglarMaquina inherits Tarea
 	
 	override method condicionParaPoderRealizar(minion)
 	{
-		return minion.estamina() == complejidad && minion.tieneHerramientas(herramientasNecesarias)
+		return minion.estamina() >= complejidad && (herramientasNecesarias.size() == 0 || minion.tieneHerramientas(herramientasNecesarias))
 	}
 	
 	override method estaminaAPerder(minion)
@@ -343,6 +405,11 @@ class LimpiarSector inherits Tarea
 	{
 		dificultad = nuevoNivelDificultad
 	}*/
+	
+	constructor(_sectorGrande)
+	{
+		sectorGrande = _sectorGrande
+	}
 	
 	method dificultad()
 	{
